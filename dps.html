@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Management App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        hr {
+            border: 1px solid #ddd;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        }
+        li:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+        h3 {
+            color: #333;
+        }
+
+        .remove-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .remove-button:hover {
+            background-color: #c0392b;
+        }
+
+        .remove-characters-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .remove-characters-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Character Management App</h2>
+
+    <label for="ownerName">Owner Name:</label>
+    <input type="text" id="ownerName" placeholder="Enter owner's name">
+
+    <label for="characterName">Character Name:</label>
+    <input type="text" id="characterName" placeholder="Enter character's name">
+
+    <button onclick="addCharacter()">Add Character</button>
+
+    <hr>
+
+    <label for="searchOwner">Search Owner's Characters:</label>
+    <input type="text" id="searchOwner" placeholder="Enter owner's name">
+    <button onclick="searchCharacters()">Search</button>
+
+    <h3>Results:</h3>
+    <ul id="characterList"></ul>
+
+    <script>
+        function addCharacter() {
+            const ownerName = document.getElementById('ownerName').value;
+            const characterName = document.getElementById('characterName').value;
+
+            if (ownerName && characterName) {
+                let characters = JSON.parse(localStorage.getItem('characters')) || {};
+
+                if (!characters[ownerName]) {
+                    characters[ownerName] = [];
+                }
+
+                characters[ownerName].push(characterName);
+
+                localStorage.setItem('characters', JSON.stringify(characters));
+
+                document.getElementById('ownerName').value = '';
+                document.getElementById('characterName').value = '';
+
+                alert('Character added successfully!');
+            } else {
+                alert('Please enter both owner and character names.');
+            }
+        }
+
+        function searchCharacters() {
+            const searchOwner = document.getElementById('searchOwner').value;
+            const characterList = document.getElementById('characterList');
+
+            if (searchOwner) {
+                let characters = JSON.parse(localStorage.getItem('characters')) || {};
+
+                if (characters[searchOwner]) {
+                    characterList.innerHTML = characters[searchOwner].map(character => `
+                        <li>
+                            ${character}
+                            <button class="remove-button" onclick="removeCharacter('${searchOwner}', '${character}')">Remove</button>
+                        </li>
+                    `).join('');
+
+                    characterList.innerHTML += `
+                        <li>
+                            <button class="remove-all-characters-button" onclick="removeAllCharacters('${searchOwner}')">Remove All Characters</button>
+                        </li>
+                    `;
+                } else {
+                    characterList.innerHTML = '<li>No characters found for this owner.</li>';
+                }
+            } else {
+                alert('Please enter owner name to search.');
+            }
+        }
+
+        function removeCharacter(ownerName, characterName) {
+            let characters = JSON.parse(localStorage.getItem('characters')) || {};
+
+            if (characters[ownerName]) {
+                characters[ownerName] = characters[ownerName].filter(character => character !== characterName);
+                localStorage.setItem('characters', JSON.stringify(characters));
+                searchCharacters();
+                alert('Character removed successfully!');
+            }
+        }
+
+        function removeAllCharacters(ownerName) {
+            let characters = JSON.parse(localStorage.getItem('characters')) || {};
+
+            if (characters[ownerName]) {
+                delete characters[ownerName];
+                localStorage.setItem('characters', JSON.stringify(characters));
+                searchCharacters();
+                alert('All characters removed successfully!');
+            }
+        }
+    </script>
+
+</body>
+</html>
